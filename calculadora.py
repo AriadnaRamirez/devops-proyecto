@@ -15,3 +15,5 @@ def dividir(a, b):
         raise ZeroDivisionError("El divisor no puede ser cero. Proporciona un número distinto de 0")
     return a / b
 # Función de potencia (TODO)
+def funcion_con_error(  x,y ):
+    return x+y
