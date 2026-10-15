@@ -1,4 +1,5 @@
+[![CI Pipeline](https://github.com/AriadnaRamirez/devops-proyecto/actions/workflows/ci.yml/badge.svg)](https://github.com/AriadnaRamirez/devops-proyecto/actions/workflows/ci.yml)
+
 # Mi Proyecto DevOps
 # Curso_Devops
 
-[![CI Pipeline](https://github.com/AriadnaRamirez/devops-proyecto/actions/workflows/ci.yml/badge.svg)](https://github.com/AriadnaRamirez/devops-proyecto/actions/workflows/ci.yml)
