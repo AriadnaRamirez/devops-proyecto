@@ -14,8 +14,6 @@ jobs:
     environment: staging
 
     steps:
-      - uses: actions/checkout@v4
-	  
       - name: Verificar configuración del ambiente
         run: |
           echo "Ambiente: ${{ vars.APP_ENV }}"
