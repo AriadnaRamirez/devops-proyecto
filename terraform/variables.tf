@@ -15,3 +15,9 @@ variable "node_count" {
   type        = number
   default     = 2
 }
+
+variable "aks_location" {
+  description = "Región del clúster AKS"
+  type        = string
+  default     = "chilecentral"
+}
