@@ -12,3 +12,18 @@ output "vnet_id" {
   description = "ID de la Virtual Network"
   value       = azurerm_virtual_network.main.id
 }
+
+output "aks_cluster_name" {
+  description = "Nombre del clúster AKS"
+  value       = azurerm_kubernetes_cluster.main.name
+}
+
+output "aks_fqdn" {
+  description = "FQDN del clúster AKS"
+  value       = azurerm_kubernetes_cluster.main.fqdn
+}
+
+output "aks_node_resource_group" {
+  description = "Resource Group administrado por AKS"
+  value       = azurerm_kubernetes_cluster.main.node_resource_group
+}
