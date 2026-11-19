@@ -1,4 +1,3 @@
-
 name: CI Pipeline
 
 on:
@@ -12,7 +11,11 @@ jobs:
     name: Lint y Tests Unitarios
     runs-on: ubuntu-latest
 
-	steps:
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
       - name: Clonar repositorio
         uses: actions/checkout@v4
 
@@ -50,7 +53,7 @@ jobs:
           retention-days: 30
 
       - name: Build imagen Docker
-        run: docker build -t devops-app:${{ github.sha }} .		
+        run: docker build -t devops-app:${{ github.sha }} .
 
       - name: Escaneo de seguridad con Trivy
         uses: aquasecurity/trivy-action@master
@@ -67,9 +70,8 @@ jobs:
         with:
           sarif_file: trivy-results.sarif
 
-
       - name: Publicar imagen (solo en push a main)
-        if: github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           docker tag devops-app:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/devops-app:${{ github.sha }}
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
