@@ -1,23 +1,17 @@
 variable "environment" {
-  description = "Ambiente de despliegue"
   type        = string
+  description = "Ambiente: dev, staging o prod"
   default     = "dev"
 }
 
 variable "location" {
-  description = "Región de Azure"
   type        = string
-  default     = "eastus"
+  description = "Región de Azure"
+  default     = "chilecentral"
 }
 
 variable "node_count" {
-  description = "Número de nodos del clúster AKS"
   type        = number
+  description = "Número de nodos del AKS"
   default     = 2
-}
-
-variable "aks_location" {
-  description = "Región del clúster AKS"
-  type        = string
-  default     = "chilecentral"
 }

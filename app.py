@@ -1,7 +1,16 @@
 def saludo(nombre):
-    return f"Hola, {nombre}!"
+    return f"Buenas tardes, {nombre}!"
+    return f"Buenos días, {nombre}!"
 
 
 print(saludo("DevOps"))
 
+
 print(saludo('Mundo'))
+
+
+def despedida(nombre):
+    return f"Adiós, {nombre}!"
+
+
+print(despedida("DevOps"))
