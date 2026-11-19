@@ -11,8 +11,8 @@ jobs:
   lint-and-test:
     name: Lint y Tests Unitarios
     runs-on: ubuntu-latest
-	
-    steps:
+
+	steps:
       - name: Clonar repositorio
         uses: actions/checkout@v4
 
