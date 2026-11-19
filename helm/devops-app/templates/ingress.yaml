@@ -1,23 +1,43 @@
-{{- if .Values.ingress.enabled }}
+{{- if .Values.ingress.enabled -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: devops-app-ingress
+  name: {{ include "devops-app.fullname" . }}
   labels:
-    app: devops-app
+    {{- include "devops-app.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
-  ingressClassName: {{ .Values.ingress.className }}
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- if .Values.ingress.tls }}
+  tls:
+    {{- range .Values.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
   rules:
-    - host: {{ .Values.ingress.host | quote }}
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
       http:
         paths:
-          - path: /app
-            pathType: Prefix
+          {{- range .paths }}
+          - path: {{ .path }}
+            {{- with .pathType }}
+            pathType: {{ . }}
+            {{- end }}
             backend:
               service:
-                name: devops-app-svc
+                name: {{ include "devops-app.fullname" $ }}
                 port:
-                  number: {{ .Values.service.port }}
+                  number: {{ $.Values.service.port }}
+          {{- end }}
+    {{- end }}
 {{- end }}
