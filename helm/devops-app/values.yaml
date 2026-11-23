@@ -5,6 +5,8 @@ image:
   tag: "1.25-alpine"
   pullPolicy: IfNotPresent
 
+imagePullSecrets: []
+
 service:
   type: ClusterIP
   port: 80
@@ -12,7 +14,52 @@ service:
 ingress:
   enabled: true
   className: nginx
-  host: devops-app.local
+  annotations: {}
+  hosts:
+    - host: devops-app.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+  automount: true
+
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs: []
+  hostnames: []
+  rules: []
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+podAnnotations: {}
+
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  capabilities:
+    drop: ["ALL"]
+
+livenessProbe: {}
+
+readinessProbe: {}
 
 resources:
   requests:
@@ -22,8 +69,12 @@ resources:
     memory: "64Mi"
     cpu: "100m"
 
+volumeMounts: []
 
-persistence:
-  enabled: true
-  storageClassName: default
-  size: 1Gi
+volumes: []
+
+nodeSelector: {}
+
+affinity: {}
+
+tolerations: []

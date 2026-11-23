@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: devops-app-svc
+  name: {{ include "devops-app.fullname" . }}
   labels:
-    app: devops-app
+    {{- include "devops-app.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
-  selector:
-    app: devops-app
   ports:
-    - name: http
-      port: {{ .Values.service.port }}
-      targetPort: 80
+    - port: {{ .Values.service.port }}
+      targetPort: http
       protocol: TCP
+      name: http
+  selector:
+    {{- include "devops-app.selectorLabels" . | nindent 4 }}

@@ -1,4 +1,3 @@
-
 # Imagen base: Python 3.11 versión slim (más pequeña)
 FROM python:3.11-slim
 

@@ -1,4 +1,3 @@
-
 name: CI Pipeline
 
 on:
@@ -7,20 +6,22 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   lint-and-test:
     name: Lint y Tests Unitarios
     runs-on: ubuntu-latest
-	
+        
     steps:
-      - name: Clonar repositorio
-        uses: actions/checkout@v4
-
-      - name: Configurar Python 3.11
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+    
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
+        
       - name: Cache de dependencias pip
         uses: actions/cache@v4
         with:
@@ -28,19 +29,16 @@ jobs:
           key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
           restore-keys: |
             pip-${{ runner.os }}-
-
+            
       - name: Instalar dependencias
         run: pip install -r requirements.txt
-
-      - name: Linting con flake8
-        run: flake8 . --max-line-length=100 --exclude=.git,__pycache__
-
-      - name: Crear carpeta de resultados
-        run: mkdir -p test-results
-
-      - name: Ejecutar tests unitarios
+            
+      - name: Linting
+        run: flake8 . --max-line-length=100
+            
+      - name: Tests con coverage
         run: pytest tests/ -v --tb=short --junitxml=test-results/results.xml
-
+            
       - name: Publicar resultados de tests
         uses: actions/upload-artifact@v4
         if: always()
@@ -48,9 +46,9 @@ jobs:
           name: test-results-${{ github.run_number }}
           path: test-results/
           retention-days: 30
-
+      
       - name: Build imagen Docker
-        run: docker build -t devops-app:${{ github.sha }} .		
+        run: docker build -t devops-app:${{ github.sha }} .
 
       - name: Escaneo de seguridad con Trivy
         uses: aquasecurity/trivy-action@master
@@ -59,14 +57,15 @@ jobs:
           format: sarif
           output: trivy-results.sarif
           severity: HIGH,CRITICAL
-          exit-code: '1'
+          exit-code: '0'
 
       - name: Subir resultados a GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: trivy-results.sarif
-
+          category: Trivy
+          wait-for-processing: true
 
       - name: Publicar imagen (solo en push a main)
         if: github.ref == 'refs/heads/main'

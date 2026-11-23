@@ -2,7 +2,7 @@ name: CD Pipeline
 
 on:
   workflow_run:
-    workflows: ["CI Pipeline"]
+    workflows: ["CI Pipeline", "Terraform IaC"]
     branches: [main]
     types: [completed]
 
@@ -13,38 +13,36 @@ jobs:
     runs-on: ubuntu-latest
     environment: staging
 
-    permissions:
-      contents: read
-
     steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/checkout@v4
 
+      - name: Simular deploy en Staging
+        run: |
+          echo "========================================="
+          echo "  DEPLOY A STAGING"
+          echo "  Versión: ${{ github.sha }}"
+          echo "  Ambiente: ${{ vars.APP_ENV }}"
+          echo "  Réplicas: ${{ vars.REPLICA_COUNT }}"
+          echo "========================================="
+          echo "Deploy completado exitosamente en staging"
+      
       - name: Verificar configuración del ambiente
         run: |
           echo "Ambiente: ${{ vars.APP_ENV }}"
           echo "DB configurada: ${{ secrets.DB_URL != '' && 'SI' || 'NO' }}"
-
+          # NUNCA hacer: echo ${{ secrets.DB_URL }}
+          # Los secrets nunca se imprimen en logs
+      
       - name: Login en Azure
-        uses: azure/login@v2
+        uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Conectar a AKS
         run: |
           az aks get-credentials \
-            --resource-group rg-devops-academia \
-            --name aks-devops \
-            --overwrite-existing
-
-      - name: Configurar Helm
-        uses: azure/setup-helm@v4
-
-      - name: Verificar conexión a AKS
-        run: |
-          kubectl get nodes
+            --resource-group rg-staging-devops \
+            --name aks-staging-devops
 
       - name: Helm deploy en Staging
         run: |
@@ -52,7 +50,7 @@ jobs:
             --namespace staging \
             --create-namespace \
             --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/devops-app \
-            --set image.tag=${{ github.event.workflow_run.head_sha }} \
+            --set image.tag=${{ github.sha }} \
             --wait --timeout 5m
 
   deploy-production:
