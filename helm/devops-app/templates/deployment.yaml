@@ -19,7 +19,6 @@ spec:
       {{- end }}
       labels:
         {{- include "devops-app.labels" . | nindent 8 }}
-        app: devops-app
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -30,21 +29,16 @@ spec:
       {{- end }}
       serviceAccountName: {{ include "devops-app.serviceAccountName" . }}
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        fsGroup: 1000
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: app
           securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
-            capabilities:
-              drop: ["ALL"]
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: 8080
               protocol: TCP
           {{- with .Values.livenessProbe }}
           livenessProbe:
