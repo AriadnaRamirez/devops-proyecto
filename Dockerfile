@@ -1,28 +1,29 @@
-# Imagen base: Python 3.11 versión slim (más pequeña)
-FROM python:3.11-slim
+# Etapa de build: instalar dependencias y ejecutar las pruebas Python.
+FROM python:3.11-slim AS builder
 
-# Metadata
 LABEL maintainer="devops-academia"
-LABEL description="App calculadora - Curso DevOps"
+LABEL description="App calculadora - Curso DevOps; ejecución de pruebas"
 
-# Directorio de trabajo
 WORKDIR /app
-
-# Copiar dependencias PRIMERO (aprovecha caché de Docker)
-COPY requirements.txt .
-
-# Instalar dependencias sin guardar caché de pip
+COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Copiar el código fuente (cambia frecuentemente, va al final)
 COPY . .
 
-# Crear usuario no root por seguridad
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+RUN useradd -m -u 1000 appuser \
+    && chown -R appuser:appuser /app
 USER appuser
+RUN pytest tests/ -v
 
-# Documentar el puerto
-EXPOSE 8000
+# Etapa runtime: Nginx sin privilegios con su página predeterminada.
+FROM nginx:1.25-alpine
 
-# Comando por defecto: ejecutar los tests
-CMD ["pytest", "tests/", "-v"]
+LABEL maintainer="devops-academia"
+LABEL description="Nginx runtime para el chart devops-app"
+
+COPY nginx.conf /etc/nginx/nginx.conf
+RUN chown -R 101:101 /var/cache/nginx /var/run
+
+EXPOSE 8080
+USER 101
+ENTRYPOINT ["nginx"]
+CMD ["-g", "daemon off;"]

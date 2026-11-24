@@ -28,13 +28,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
   resource_group_name = azurerm_resource_group.main.name
   dns_prefix          = "aks${var.environment}devops"
 
-  oidc_issuer_enabled = true
-
   default_node_pool {
     name       = "default"
     node_count = var.node_count
-    vm_size    = "standard_d2ds_v4"
+    vm_size    = var.vm_size
   }
+
+  oidc_issuer_enabled       = true
+  workload_identity_enabled = true
 
   identity {
     type = "SystemAssigned"
