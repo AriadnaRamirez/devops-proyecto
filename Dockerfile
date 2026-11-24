@@ -1,29 +1,36 @@
-# Etapa de build: instalar dependencias y ejecutar las pruebas Python.
+# Stage 1: Build - Python para tests y compilación
 FROM python:3.11-slim AS builder
 
 LABEL maintainer="devops-academia"
-LABEL description="App calculadora - Curso DevOps; ejecución de pruebas"
+LABEL description="App calculadora - Curso DevOps"
 
 WORKDIR /app
-COPY requirements.txt ./
+
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
 COPY . .
 
-RUN useradd -m -u 1000 appuser \
-    && chown -R appuser:appuser /app
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
+
+# Ejecutar tests durante el build
 RUN pytest tests/ -v
 
-# Etapa runtime: Nginx sin privilegios con su página predeterminada.
+# Stage 2: Runtime - Nginx
 FROM nginx:1.25-alpine
 
 LABEL maintainer="devops-academia"
-LABEL description="Nginx runtime para el chart devops-app"
+LABEL description="App calculadora - Nginx runtime"
 
-COPY nginx.conf /etc/nginx/nginx.conf
-RUN chown -R 101:101 /var/cache/nginx /var/run
+# Crear usuario no root
+RUN adduser -D -u 1000 appuser
 
-EXPOSE 8080
-USER 101
-ENTRYPOINT ["nginx"]
-CMD ["-g", "daemon off;"]
+# Copiar contenido de la app si necesitas servir HTML/JS
+COPY --from=builder /app /usr/share/nginx/html
+
+EXPOSE 80
+
+USER appuser
+
+CMD ["nginx", "-g", "daemon off;"]
