@@ -2,18 +2,16 @@ version: '3.9'
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      target: builder
     container_name: devops-app
-    ports:
-      - "8000:8000"
     environment:
       - APP_ENV=development
       - PYTHONUNBUFFERED=1
     volumes:
       - .:/app                  # Hot reload en desarrollo
     command: pytest tests/ -v --tb=short
-    depends_on:
-      - db
 
   db:
     image: postgres:15-alpine
