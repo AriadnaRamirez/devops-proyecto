@@ -23,3 +23,7 @@ terraform.tfstate
 terraform.tfstate.backup
 *.tfvars.local
 .terraform.lock.hcl
+.terraform/
+.terraform-backup/
+*.tfstate
+*.tfstate.*
